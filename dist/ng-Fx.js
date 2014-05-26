@@ -10,7 +10,6 @@
       emit: function(element, animation, motion){
         var $scope = angular.element(element).scope();
         $scope.$emit(animation + ' ' +motion);
-        console.log(animation + ' ' +motion);
       },
 
       parseClassList: function(element){
@@ -40,7 +39,6 @@
           if(options.trigger){
             self.emit(element, options.animation, options.motion);
           }
-          console.log(options);
           end();
         }, time);
         element.data(options.timeoutKey, timer);
@@ -405,7 +403,6 @@
       this.move = this.enter;
 
       this.removeClass = function(element, className, done){
-        console.log('removeClass');
         if(className === 'ng-hide'){
           var options = Assist.parseClassList(element);
           options.motion = 'leave';
@@ -488,6 +485,56 @@
 }(angular, TweenMax, TimelineMax));
 
 
+(function (angular, TLM) {
+  "use strict";
+  var defaults = {
+    from: null,
+    to: null,
+    duration: 1
+  };
+
+  function finish (done) {
+    console.log('finish');
+    return done;
+  }
+
+  angular.module('fx.transitions.create', [])
+
+  .factory('SlideTransition', [function () {
+    var slide;
+
+    return function (effect) {
+      angular.extend(defaults, effect);
+
+      this.enter = function (el, done) {
+        el.css('position', 'absolute');
+
+        slide = new TLM({onComplete: finish(done)});
+
+        slide.from(el, effect.duration, effect.from)
+             .to(el, effect.duration, effect.to);
+      };
+
+      this.leave = function (el, done) {
+        // el.css('position', 'absolute');
+        // el.css('z-index', '9999');
+
+        // slide = new TLM({onComplete: finish(done)});
+
+        // slide.from(el, effect.duration, effect.from)
+        //      .to(el, effect.duration, effect.to);
+
+        el.css('z-index', '9999');
+        var page = new TLM({onComplete: finish(done)});
+        page.to(el, {transform: 'rotateZ(0deg)'})
+            .to(el, 0.2, {transform: 'rotateZ(10deg)'})
+            .to(el, 0.2, {transform: 'rotateZ(17deg)'})
+            .to(el, 0.4, {transform: 'rotateZ(15deg)'})
+            .to(el, 0.2, {transform: 'translateY(100%) rotateZ(17deg)'});
+      };
+    };
+  }]);
+}(angular, TimelineMax));
 
 /*
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -691,7 +738,29 @@
 
     return new FadeAnimation(effect);
   }]);
+  // .animation('.fx-view-rotate', function () {
+  //   return {
+  //     enter: function (el, done) {
+  //       var mydone = function (el) {
+  //         el.css('z-index', 0);
+  //         return done;
+  //       };
+  //       var page = new TimelineMax({onComplete: mydone(el)});
+  //       page.from(el, 1.0, {transform: 'translateZ(0) scale(0.8)', opacity: '0.3'});
+  //     },
+  //     leave: function (el, done) {
+        // el.css('z-index', '9999');
+        // var page = new TimelineMax({onComplete: done});
+        // page.to(el, {transform: 'rotateZ(0deg)'})
+        //     .to(el, 0.2, {transform: 'rotateZ(10deg)'})
+        //     .to(el, 0.2, {transform: 'rotateZ(17deg)'})
+        //     .to(el, 0.4, {transform: 'rotateZ(15deg)'})
+        //     .to(el, 0.2, {transform: 'translateY(100%) rotateZ(17deg)'})
+  //     }
+  //   }
+  // });
 }(angular));
+
 
 /*
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -831,6 +900,21 @@
 }(angular));
 (function (angular) {
   "use strict";
+
+  angular.module('fx.transitions.slides', ['fx.transitions.create'])
+
+  .animation('.fx-view-slide-right', ['SlideTransition', function (SlideTransition) {
+    var effect = {
+      from: { transform: 'translateX(100%)'},
+      to: { transform: 'translateX(0)'},
+      duration: 0.5
+    };
+
+    return new SlideTransition(effect);
+  }]);
+}(angular));
+(function (angular) {
+  "use strict";
   angular.module('fx.events.flip', ['fx.animations.create'])
 
   .animation('.fx-flipY', ['Flip3d' ,function (Flip3d){
@@ -890,7 +974,7 @@
       TweenMax.set([back, front], {backfaceVisibility: 'hidden'});
 
       angular.forEach(events, function(event){
-        scope.$on('next', function(){
+        el.bind(event, function(){
           if(el.hasClass('fx-flip'+axis)){
             $animate.removeClass(el, 'fx-flip'+axis);
           } else {
@@ -918,12 +1002,20 @@
       'fx.animations.bounces',
       'fx.animations.rotations',
       'fx.animations.zooms',
-      'fx.events.flip']
+      'fx.events.flip'
+      ]
   );
+
+  angular.module('fx.transitions',
+    [
+      'fx.transitions.slides'
+    ]
+  );
+
   angular.module('fx.directives',
     ['fx.directives.flips']
   );
 
-  angular.module('fx.animations', ['fx.animates', 'fx.directives']);
+  angular.module('fx.animations', ['fx.animates','fx.directives', 'fx.transitions']);
 }(angular));
 

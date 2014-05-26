@@ -116,4 +116,25 @@
 
     return new FadeAnimation(effect);
   }]);
+  // .animation('.fx-view-rotate', function () {
+  //   return {
+  //     enter: function (el, done) {
+  //       var mydone = function (el) {
+  //         el.css('z-index', 0);
+  //         return done;
+  //       };
+  //       var page = new TimelineMax({onComplete: mydone(el)});
+  //       page.from(el, 1.0, {transform: 'translateZ(0) scale(0.8)', opacity: '0.3'});
+  //     },
+  //     leave: function (el, done) {
+        // el.css('z-index', '9999');
+        // var page = new TimelineMax({onComplete: done});
+        // page.to(el, {transform: 'rotateZ(0deg)'})
+        //     .to(el, 0.2, {transform: 'rotateZ(10deg)'})
+        //     .to(el, 0.2, {transform: 'rotateZ(17deg)'})
+        //     .to(el, 0.4, {transform: 'rotateZ(15deg)'})
+        //     .to(el, 0.2, {transform: 'translateY(100%) rotateZ(17deg)'})
+  //     }
+  //   }
+  // });
 }(angular));
