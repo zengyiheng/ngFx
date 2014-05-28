@@ -898,21 +898,55 @@
     return new ZoomAnimation(effect);
   }]);
 }(angular));
-(function (angular) {
+(function (angular, TLM) {
   "use strict";
 
   angular.module('fx.transitions.slides', ['fx.transitions.create'])
 
-  .animation('.fx-view-slide-right', ['SlideTransition', function (SlideTransition) {
+  .animation('.fx-slide-in-right', ['SlideTransition', function (SlideTransition) {
+    var slide;
+
     var effect = {
       from: { transform: 'translateX(100%)'},
       to: { transform: 'translateX(0)'},
       duration: 0.5
     };
 
-    return new SlideTransition(effect);
+    return {
+      enter: function (el, done) {
+        el.css('position', 'absolute');
+
+        slide = new TLM({onComplete: done});
+
+        slide.from(el, effect.duration, effect.from)
+             .to(el, effect.duration, effect.to);
+      }
+
+    };
+
+    // return new SlideTransition(effect);
+  }])
+
+  .animation('.fx-fall-out', ['SlideTransition', function (SlideTransition) {
+    // var effect = {
+    //   from: {}
+    // };
+
+
+    return {
+      leave: function (el, done) {
+        el.css('z-index', '9999');
+        var page = new TLM({onComplete: done});
+        page.to(el, {transform: 'rotateZ(0deg)'})
+            .to(el, 0.2, {transform: 'rotateZ(10deg)'})
+            .to(el, 0.2, {transform: 'rotateZ(17deg)'})
+            .to(el, 0.4, {transform: 'rotateZ(15deg)'})
+            .to(el, 0.2, {transform: 'translateY(100%) rotateZ(17deg)'});
+      }
+    };
+    // return new SlideTransition(effect);
   }]);
-}(angular));
+}(angular, TimelineMax));
 (function (angular) {
   "use strict";
   angular.module('fx.events.flip', ['fx.animations.create'])
@@ -1016,6 +1050,81 @@
     ['fx.directives.flips']
   );
 
-  angular.module('fx.animations', ['fx.animates','fx.directives', 'fx.transitions']);
+  angular.module('fx.animations', ['fx.animates','fx.directives', 'fx.transitions', 'ngRoute'])
+
+    .config(['$provide', function ($provide) {
+      $provide.decorator('ngViewDirective', function ($delegate, $route, $animate, $anchorScroll) {
+        var compile, ngView;
+
+        ngView = $delegate[0];
+        compile = ngView.compile;
+
+        ngView.compile = function () {
+          return myLink;
+        };
+
+        function myLink (scope, $element, attr, ctrl, $transclude) {
+            var currentScope,
+                currentElement,
+                previousElement,
+                autoScrollExp = attr.autoscroll,
+                onloadExp = attr.onload || '';
+
+            scope.$on('$routeChangeSuccess', update);
+            update();
+
+            function cleanupLastView() {
+              if(previousElement) {
+                previousElement.remove();
+                previousElement = null;
+              }
+              if(currentScope) {
+                currentScope.$destroy();
+                currentScope = null;
+              }
+              if(currentElement) {
+                $animate.leave(currentElement, function() {
+                  previousElement = null;
+                });
+                previousElement = currentElement;
+                currentElement = null;
+              }
+            }
+
+            function update() {
+              var locals = $route.current && $route.current.locals,
+                  template = locals && locals.$template,
+                  enter = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.enter,
+                  leave = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.leave;
+
+
+              if (angular.isDefined(template)) {
+                var newScope = scope.$new();
+                var current = $route.current;
+
+                var clone = $transclude(newScope, function(clone) {
+                  clone.addClass(enter);
+                  clone.addClass(leave);
+                  $animate.enter(clone, null, currentElement || $element, function onNgViewEnter () {
+                    if (angular.isDefined(autoScrollExp)
+                      && (!autoScrollExp || scope.$eval(autoScrollExp))) {
+                      $anchorScroll();
+                    }
+                  });
+                  cleanupLastView();
+                });
+
+                currentElement = clone;
+                currentScope = current.scope = newScope;
+                currentScope.$emit('$viewContentLoaded');
+                currentScope.$eval(onloadExp);
+              } else {
+                cleanupLastView();
+              }
+            }
+        }
+        return $delegate;
+      });
+    }]);
 }(angular));
 
