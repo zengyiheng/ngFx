@@ -2,6 +2,15 @@
 
 (function(angular){
   "use strict";
+
+
+  var routers = {
+    'ui.router': false,
+    'ngRoute': false
+  };
+
+  checkRouting();
+
   angular.module('fx.animates',
     ['fx.animations.fades',
       'fx.animations.bounces',
@@ -20,20 +29,19 @@
     ['fx.directives.flips']
   );
 
-  angular.module('fx.animations', ['fx.animates', 'fx.transitions', 'ngRoute'])
+  if (routers.ngRoute) {
+    angular.module('fx.animations', ['fx.animates', 'fx.transitions','ngRoute'])
+      .config(['$provide', function ($provide) {
+        $provide.decorator('ngViewDirective', function ($delegate, $route, $animate, $anchorScroll) {
+          var ngView;
 
-    .config(['$provide', function ($provide) {
-      $provide.decorator('ngViewDirective', function ($delegate, $route, $animate, $anchorScroll) {
-        var compile, ngView;
+          ngView = $delegate[0];
 
-        ngView = $delegate[0];
-        compile = ngView.compile;
+          ngView.compile = function () {
+            return routeLink;
+          };
 
-        ngView.compile = function () {
-          return myLink;
-        };
-
-        function myLink (scope, $element, attr, ctrl, $transclude) {
+          function routeLink (scope, $element, attr, ctrl, $transclude) {
             var currentScope,
                 currentElement,
                 previousElement,
@@ -67,7 +75,6 @@
                   enter = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.enter,
                   leave = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.leave;
 
-
               if (angular.isDefined(template)) {
                 var newScope = scope.$new();
                 var current = $route.current;
@@ -92,9 +99,147 @@
                 cleanupLastView();
               }
             }
-        }
-        return $delegate;
-      });
+          }
+          return $delegate;
+        });
     }]);
+  } else if (routers['ui.router']) {
+    angular.module('fx.animations', ['fx.animates', 'fx.transitions', 'ui.router'])
+      .config(['$provide', function ($provide) {
+        $provide.decorator('uiViewDirective', function ($delegate, $injector, $state, $uiViewScroll) {
+          function getService() {
+            return ($injector.has) ? function(service) {
+              return $injector.has(service) ? $injector.get(service) : null;
+            } : function(service) {
+              try {
+                return $injector.get(service);
+              } catch (e) {
+                return null;
+              }
+            };
+          }
+
+          var service = getService(),
+              $animator = service('$animator'),
+              $animate = service('$animate');
+
+          function getRenderer(attrs, scope) {
+            var statics = function() {
+              return {
+                enter: function (element, target, cb) { target.after(element); cb(); },
+                leave: function (element, cb) { element.remove(); cb(); }
+              };
+            };
+
+            if ($animate) {
+              return {
+                enter: function(element, target, cb) { $animate.enter(element, null, target, cb); },
+                leave: function(element, cb) { $animate.leave(element, cb); }
+              };
+            }
+
+            if ($animator) {
+              var animate = $animator && $animator(scope, attrs);
+
+              return {
+                enter: function(element, target, cb) {animate.enter(element, null, target); cb(); },
+                leave: function(element, cb) { animate.leave(element); cb(); }
+              };
+            }
+
+            return statics();
+          }
+
+          var uiView;
+
+          uiView = $delegate[0];
+          uiView.compile = function (tElement, tAttrs, $transclude) {
+            return function uiLink (scope, $element, attrs) {
+              var previousEl, currentEl, currentScope, latestLocals,
+                  onloadExp     = attrs.onload || '',
+                  autoScrollExp = attrs.autoscroll,
+                  renderer      = getRenderer(attrs, scope);
+
+              scope.$on('$stateChangeSuccess', function() {
+                updateView(false);
+              });
+              scope.$on('$viewContentLoading', function() {
+                updateView(false);
+              });
+
+              updateView(true);
+
+              function cleanupLastView() {
+                if (previousEl) {
+                  previousEl.remove();
+                  previousEl = null;
+                }
+
+                if (currentScope) {
+                  currentScope.$destroy();
+                  currentScope = null;
+                }
+
+                if (currentEl) {
+                  renderer.leave(currentEl, function() {
+                    previousEl = null;
+                  });
+
+                  previousEl = currentEl;
+                  currentEl = null;
+                }
+              }
+
+              function updateView(firstTime) {
+                var newScope        = scope.$new(),
+                    name            = currentEl && currentEl.data('$uiViewName'),
+                    previousLocals  = name && $state.$current && $state.$current.locals[name],
+                    enter           = $state.$current && $state.$current.animation && $state.$current.animation.enter,
+                    leave           = $state.$current && $state.$current.animation && $state.$current.animation.leave;
+
+                if (!firstTime && previousLocals === latestLocals) return; // nothing to do
+
+                var clone = $transclude(newScope, function(clone) {
+                  clone.addClass(enter);
+                  clone.addClass(leave);
+                  renderer.enter(clone, $element, function onUiViewEnter() {
+                    if (angular.isDefined(autoScrollExp) && !autoScrollExp || scope.$eval(autoScrollExp)) {
+                      $uiViewScroll(clone);
+                    }
+                  });
+                  cleanupLastView();
+                });
+
+                latestLocals = $state.$current.locals[clone.data('$uiViewName')];
+
+                currentEl = clone;
+                currentScope = newScope;
+                currentScope.$emit('$viewContentLoaded');
+                currentScope.$eval(onloadExp);
+              }
+            };
+          };
+          return $delegate;
+        });
+    }]);
+  } else {
+    angular.module('fx.animations', ['fx.animates', 'fx.transitions']);
+  }
+
+
+
+  function checkRouting () {
+    var types = ['ui.router', 'ngRoute'];
+
+    angular.forEach(types, function (type) {
+      try {
+        angular.module(type);
+        routers[type] = true;
+      } catch (err) {
+        routers[type] = false;
+      }
+    });
+  }
+
 }(angular));
 
