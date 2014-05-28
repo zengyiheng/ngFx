@@ -17,16 +17,16 @@ module.exports = function(config) {
     files: [
       'bower_components/angular/angular.js',
       'bower_components/angular-mocks/angular-mocks.js',
-      'bower_components/angular-route/angular-route.js',
+      // 'bower_components/angular-route/angular-route.js',
       'bower_components/angular-animate/angular-animate.js',
       'bower_components/gsap/src/uncompressed/TweenMax.js',
 
-      'src/animations/*.js',
-      'src/transitions/*.js',
+      'src/animations/**/*.js',
+      // 'src/animations/transitions/*.js',
       'src/animate.js',
-      'src/animationsAssist.js',
-      'src/animationClass.js',
-      'src/transitionsClass.js',
+      // 'src/animtions/ranimationsAssist.js',
+      // 'src/animationClass.js',
+      // 'src/transitionsClass.js',
       'specs/jasmine.conf.js',
       'node_modules/expect.js/index.js',
       'specs/**/*Spec.js'

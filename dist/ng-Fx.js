@@ -1045,6 +1045,7 @@
       'fx.animations.bounces',
       'fx.animations.rotations',
       'fx.animations.zooms'
+  /*  ,'fx.events.flips' */
       ]
   );
 

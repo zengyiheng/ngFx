@@ -29,6 +29,7 @@ src/bootstrap-custom
 src/app.js
 src/index.html
 src/style.css
+src/templates
 coverage
 
 .DS_Store
