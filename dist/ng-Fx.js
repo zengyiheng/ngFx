@@ -1035,8 +1035,7 @@
     ['fx.animations.fades',
       'fx.animations.bounces',
       'fx.animations.rotations',
-      'fx.animations.zooms',
-      'fx.events.flip'
+      'fx.animations.zooms'
       ]
   );
 
@@ -1050,7 +1049,7 @@
     ['fx.directives.flips']
   );
 
-  angular.module('fx.animations', ['fx.animates','fx.directives', 'fx.transitions', 'ngRoute'])
+  angular.module('fx.animations', ['fx.animates', 'fx.transitions', 'ngRoute'])
 
     .config(['$provide', function ($provide) {
       $provide.decorator('ngViewDirective', function ($delegate, $route, $animate, $anchorScroll) {
