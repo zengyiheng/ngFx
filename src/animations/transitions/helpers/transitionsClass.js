@@ -19,7 +19,7 @@
           orignalCSS.position = el.css('position');
           cssMixin(el);
 
-          TransAssist.addTimer(el, done);
+          TransAssist.addTimer(el, effect.duration, done);
 
           slide = new TLM();
 
@@ -37,7 +37,7 @@
 
           cssMixin(el);
 
-          TransAssist.addTimer(el, done);
+          TransAssist.addTimer(el, effect.duration, done);
 
           slide = new TLM();
 
