@@ -75,7 +75,8 @@
               var locals = $route.current && $route.current.locals,
                   template = locals && locals.$template,
                   enter = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.enter,
-                  leave = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.leave;
+                  leave = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.leave,
+                  ease = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.ease;
 
               if (angular.isDefined(template)) {
                 var newScope = scope.$new();
@@ -85,6 +86,7 @@
                   // clone.hasClass
                   clone.addClass(enter);
                   clone.addClass(leave);
+                  clone.addClass('fx-easing-'+ease);
                   $animate.enter(clone, null, currentElement || $element, function onNgViewEnter () {
                     if (angular.isDefined(autoScrollExp) &&
                       (!autoScrollExp || scope.$eval(autoScrollExp))) {
@@ -198,13 +200,15 @@
                     name            = currentEl && currentEl.data('$uiViewName'),
                     previousLocals  = name && $state.$current && $state.$current.locals[name],
                     enter           = $state.$current && $state.$current.animation && $state.$current.animation.enter,
-                    leave           = $state.$current && $state.$current.animation && $state.$current.animation.leave;
+                    leave           = $state.$current && $state.$current.animation && $state.$current.animation.leave,
+                    ease            = $state.$current && $state.$current.animation && $state.$current.animation.ease;
 
-                if (!firstTime && previousLocals === latestLocals) return; // nothing to do
+                if (!firstTime && previousLocals === latestLocals) {return;} // nothing to do
 
                 var clone = $transclude(newScope, function(clone) {
                   clone.addClass(enter);
                   clone.addClass(leave);
+                  clone.addClass('fx-easing-'+ease);
                   renderer.enter(clone, $element, function onUiViewEnter() {
                     if (angular.isDefined(autoScrollExp) && !autoScrollExp || scope.$eval(autoScrollExp)) {
                       $uiViewScroll(clone);

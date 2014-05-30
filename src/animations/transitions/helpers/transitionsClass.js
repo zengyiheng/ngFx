@@ -4,11 +4,10 @@
     duration: 0.5
   };
 
-  angular.module('fx.transitions.create', ['fx.transitions.assist'])
+  angular.module('fx.transitions.create', ['fx.transitions.assist', 'fx.animations.assist'])
 
-  .factory('SlideTransition', ['TransAssist', function (TransAssist) {
-    var slide,
-        orignalCSS = {};
+  .factory('SlideTransition', ['TransAssist', 'Assist', function (TransAssist, Assist) {
+    var slide;
 
     return function (effect) {
 
@@ -16,15 +15,14 @@
 
       if (effect.from) {
         this.enter = function (el, done) {
-          orignalCSS.position = el.css('position');
           cssMixin(el);
 
+          effect.from.ease = Assist.parseClassList(el, true).easeIn;
           TransAssist.addTimer(el, effect.duration, done);
 
           slide = new TLM();
 
-          slide.from(el, effect.duration, effect.from)
-               .to(el, effect.duration, effect.to);
+          slide.from(el, effect.duration, effect.from);
           return function (cancel) {
             if(cancel) {
               TransAssist.removeTimer(el);
@@ -38,6 +36,7 @@
           cssMixin(el);
 
           TransAssist.addTimer(el, effect.duration, done);
+          effect.to.ease = Assist.parseClassList(el, true).easeIn;
 
           slide = new TLM();
 

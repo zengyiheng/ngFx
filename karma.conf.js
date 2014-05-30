@@ -22,11 +22,7 @@ module.exports = function(config) {
       'bower_components/gsap/src/uncompressed/TweenMax.js',
 
       'src/animations/**/*.js',
-      // 'src/animations/transitions/*.js',
       'src/animate.js',
-      // 'src/animtions/ranimationsAssist.js',
-      // 'src/animationClass.js',
-      // 'src/transitionsClass.js',
       'specs/jasmine.conf.js',
       'node_modules/expect.js/index.js',
       'specs/**/*Spec.js'

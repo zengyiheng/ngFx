@@ -12,7 +12,7 @@
         $scope.$emit(animation + ' ' +motion);
       },
 
-      parseClassList: function(element){
+      parseClassList: function(element, option){
         var ease,
             list    = element[0].classList,
             results = {trigger: false, duration: 0.3, ease: $window.Back};
@@ -29,7 +29,8 @@
             results.duration = parseInt(className.slice(9))/1000;
           }
         });
-        return results;
+
+        return option ? results.ease : results;
       },
 
       addTimer: function(options, element, end){
