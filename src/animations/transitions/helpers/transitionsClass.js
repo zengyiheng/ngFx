@@ -4,9 +4,9 @@
     duration: 0.5
   };
 
-  angular.module('fx.transitions.create', [])
+  angular.module('fx.transitions.create', ['fx.transitions.assist'])
 
-  .factory('SlideTransition', [function () {
+  .factory('SlideTransition', ['TransAssist', function (TransAssist) {
     var slide,
         orignalCSS = {};
 
@@ -19,10 +19,17 @@
           orignalCSS.position = el.css('position');
           cssMixin(el);
 
-          slide = new TLM({onComplete: done});
+          TransAssist.addTimer(el, done);
+
+          slide = new TLM();
 
           slide.from(el, effect.duration, effect.from)
                .to(el, effect.duration, effect.to);
+          return function (cancel) {
+            if(cancel) {
+              TransAssist.removeTimer(el);
+            }
+          };
         };
 
       } else if (!effect.from && effect.to) {
@@ -30,9 +37,17 @@
 
           cssMixin(el);
 
-          slide = new TLM({onComplete: done});
+          TransAssist.addTimer(el, done);
+
+          slide = new TLM();
 
           slide.to(el, effect.duration, effect.to);
+
+          return function (cancel) {
+            if(cancel) {
+              TransAssist.removeTimer(el);
+            }
+          };
           // el.css('position', 'absolute');
           // el.css('z-index', '9999');
 
@@ -53,7 +68,7 @@
     };
   }]);
 
-  function cssMixin (el, leave) {
+  function cssMixin (el) {
     el.css('position', 'absolute');
     // leave ? el.css('z-index', '9999') : void 0;
   }

@@ -8,6 +8,7 @@ var gulp    = require('gulp'),
 var paths = {
   animations: [
     './src/animations/regular/helpers/animationsAssist.js',
+    './src/animations/transitions/helpers/transitionsAssist.js',
     './src/animations/regular/helpers/animationClass.js',
     './src/animations/transitions/helpers/transitionsClass.js',
     './src/animations/regular/*.js',
