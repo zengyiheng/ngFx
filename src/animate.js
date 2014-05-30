@@ -22,7 +22,8 @@
 
   angular.module('fx.transitions',
     [
-      'fx.transitions.slides'
+      'fx.transitions.slides',
+      'fx.transitions.specials'
     ]
   );
 
@@ -81,11 +82,12 @@
                 var current = $route.current;
 
                 var clone = $transclude(newScope, function(clone) {
+                  // clone.hasClass
                   clone.addClass(enter);
                   clone.addClass(leave);
                   $animate.enter(clone, null, currentElement || $element, function onNgViewEnter () {
-                    if (angular.isDefined(autoScrollExp)
-                      && (!autoScrollExp || scope.$eval(autoScrollExp))) {
+                    if (angular.isDefined(autoScrollExp) &&
+                      (!autoScrollExp || scope.$eval(autoScrollExp))) {
                       $anchorScroll();
                     }
                   });
@@ -241,6 +243,5 @@
       }
     });
   }
-
 }(angular));
 

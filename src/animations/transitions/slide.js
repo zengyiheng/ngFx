@@ -3,47 +3,81 @@
 
   angular.module('fx.transitions.slides', ['fx.transitions.create'])
 
-  .animation('.fx-slide-in-right', ['SlideTransition', function (SlideTransition) {
-    var slide;
+  .animation('.fx-slide-in-left', ['SlideTransition', function (SlideTransition) {
 
     var effect = {
-      from: { transform: 'translateX(100%)'},
+      from: { transform: 'translateZ(0) translateX(100%)'},
       to: { transform: 'translateX(0)'},
       duration: 0.5
     };
 
-    return {
-      enter: function (el, done) {
-        el.css('position', 'absolute');
-
-        slide = new TLM({onComplete: done});
-
-        slide.from(el, effect.duration, effect.from)
-             .to(el, effect.duration, effect.to);
-      }
-
-    };
-
-    // return new SlideTransition(effect);
+    return new SlideTransition(effect);
   }])
+  .animation('.fx-slide-out-left', ['SlideTransition', function (SlideTransition) {
 
-  .animation('.fx-fall-out', ['SlideTransition', function (SlideTransition) {
-    // var effect = {
-    //   from: {}
-    // };
-
-
-    return {
-      leave: function (el, done) {
-        el.css('z-index', '9999');
-        var page = new TLM({onComplete: done});
-        page.to(el, {transform: 'rotateZ(0deg)'})
-            .to(el, 0.1, {transform: 'rotateZ(10deg)'})
-            .to(el, 0.3, {transform: 'rotateZ(17deg)'})
-            .to(el, 0.5, {transform: 'rotateZ(15deg)'})
-            .to(el, 0.2, {transform: 'translateY(100%) rotateZ(17deg)'});
-      }
+    var effect = {
+      to: { transform: 'translateZ(0) translateX(-100%)'},
+      duration: 0.5
     };
-    // return new SlideTransition(effect);
+
+    return new SlideTransition(effect);
+  }])
+  .animation('.fx-slide-in-right', ['SlideTransition', function (SlideTransition) {
+
+    var effect = {
+      from: { transform: 'translateZ(0) translateX(-100%)'},
+      to: { transform: 'translateX(0)'},
+      duration: 0.5
+    };
+
+    return new SlideTransition(effect);
+
+  }])
+  .animation('.fx-slide-out-right', ['SlideTransition', function (SlideTransition) {
+
+    var effect = {
+      to: { transform: 'translateZ(0) translateX(100%)'},
+      duration: 0.5
+    };
+
+    return new SlideTransition(effect);
+  }])
+  .animation('.fx-slide-in-down', ['SlideTransition', function (SlideTransition) {
+
+    var effect = {
+      from: { transform: 'translateZ(0) translateY(-100%)'},
+      to: { transform: 'translateX(0)'},
+      duration: 0.5
+    };
+
+    return new SlideTransition(effect);
+  }])
+  .animation('.fx-slide-out-down', ['SlideTransition', function (SlideTransition) {
+
+    var effect = {
+      to: { transform: 'translateZ(0) translateY(100%)'},
+      duration: 0.5
+    };
+
+    return new SlideTransition(effect);
+  }])
+  .animation('.fx-slide-in-up', ['SlideTransition', function (SlideTransition) {
+
+    var effect = {
+      from: { transform: 'translateZ(0) translateY(100%)'},
+      to: { transform: 'translateX(0)'},
+      duration: 0.5
+    };
+
+    return new SlideTransition(effect);
+  }])
+  .animation('.fx-slide-out-up', ['SlideTransition', function (SlideTransition) {
+
+    var effect = {
+      to: { transform: 'translateZ(0) translateY(-100%)'},
+      duration: 0.5
+    };
+
+    return new SlideTransition(effect);
   }]);
 }(angular, TimelineMax));
