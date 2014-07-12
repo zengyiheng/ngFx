@@ -23,6 +23,8 @@
   angular.module('fx.transitions',
     [
       'fx.transitions.slides',
+      'fx.transitions.scales',
+      'fx.transitions.rotations',
       'fx.transitions.specials'
     ]
   );
@@ -72,11 +74,12 @@
             }
 
             function update() {
-              var locals = $route.current && $route.current.locals,
-                  template = locals && locals.$template,
-                  enter = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.enter,
-                  leave = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.leave,
-                  ease = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.ease;
+              var locals    = $route.current && $route.current.locals,
+                  template  = locals && locals.$template,
+                  enter     = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.enter,
+                  leave     = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.leave,
+                  ease      = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.ease,
+                  speed     = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.speed;
 
               if (angular.isDefined(template)) {
                 var newScope = scope.$new();
@@ -87,6 +90,8 @@
                   clone.addClass(enter);
                   clone.addClass(leave);
                   clone.addClass('fx-easing-'+ease);
+                  clone.addClass('fx-speed-'+speed);
+
                   $animate.enter(clone, null, currentElement || $element, function onNgViewEnter () {
                     if (angular.isDefined(autoScrollExp) &&
                       (!autoScrollExp || scope.$eval(autoScrollExp))) {
@@ -201,7 +206,8 @@
                     previousLocals  = name && $state.$current && $state.$current.locals[name],
                     enter           = $state.$current && $state.$current.animation && $state.$current.animation.enter,
                     leave           = $state.$current && $state.$current.animation && $state.$current.animation.leave,
-                    ease            = $state.$current && $state.$current.animation && $state.$current.animation.ease;
+                    ease            = $state.$current && $state.$current.animation && $state.$current.animation.ease,
+                    speed           = $state.$current && $state.$current.animation && $state.$current.animation.speed;
 
                 if (!firstTime && previousLocals === latestLocals) {return;} // nothing to do
 
@@ -209,6 +215,8 @@
                   clone.addClass(enter);
                   clone.addClass(leave);
                   clone.addClass('fx-easing-'+ease);
+                  clone.addClass('fx-speed-'+speed);
+
                   renderer.enter(clone, $element, function onUiViewEnter() {
                     if (angular.isDefined(autoScrollExp) && !autoScrollExp || scope.$eval(autoScrollExp)) {
                       $uiViewScroll(clone);

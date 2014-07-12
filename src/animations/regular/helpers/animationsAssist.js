@@ -30,7 +30,7 @@
           }
         });
 
-        return option ? results.ease : results;
+        return option ? {ease: results.ease, speed: results.duration} : results;
       },
 
       addTimer: function(options, element, end){

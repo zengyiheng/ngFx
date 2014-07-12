@@ -7,7 +7,7 @@
 
     var effect = {
       from: { transform: 'translateZ(0) translateX(100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -16,7 +16,7 @@
 
     var effect = {
       to: { transform: 'translateZ(0) translateX(-100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -25,7 +25,7 @@
 
     var effect = {
       from: { transform: 'translateZ(0) translateX(-100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -35,7 +35,7 @@
 
     var effect = {
       to: { transform: 'translateZ(0) translateX(100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -44,7 +44,7 @@
 
     var effect = {
       from: { transform: 'translateZ(0) translateY(-100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -53,7 +53,7 @@
 
     var effect = {
       to: { transform: 'translateZ(0) translateY(100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -62,7 +62,7 @@
 
     var effect = {
       from: { transform: 'translateZ(0) translateY(100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -71,7 +71,7 @@
 
     var effect = {
       to: { transform: 'translateZ(0) translateY(-100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -83,7 +83,7 @@
 
     var effect = {
       from: { opacity: '0.3', transform: 'translateZ(0) translateX(100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -92,7 +92,7 @@
 
     var effect = {
       to: { opacity: '0.3', transform: 'translateZ(0) translateX(-100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -101,7 +101,7 @@
 
     var effect = {
       from: { opacity: '0.3', transform: 'translateZ(0) translateX(-100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -111,7 +111,7 @@
 
     var effect = {
       to: { opacity: '0.3', transform: 'translateZ(0) translateX(100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -120,7 +120,7 @@
 
     var effect = {
       from: { opacity: '0.3', transform: 'translateZ(0) translateY(-100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -129,7 +129,7 @@
 
     var effect = {
       to: { opacity: '0.3', transform: 'translateZ(0) translateY(100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -138,7 +138,7 @@
 
     var effect = {
       from: { opacity: '0.3', transform: 'translateZ(0) translateY(100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -147,7 +147,7 @@
 
     var effect = {
       to: { opacity: '0.3', transform: 'translateZ(0) translateY(-100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);

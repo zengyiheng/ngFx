@@ -30,7 +30,7 @@
           }
         });
 
-        return option ? results.ease : results;
+        return option ? {ease: results.ease, speed: results.duration} : results;
       },
 
       addTimer: function(options, element, end){
@@ -517,9 +517,6 @@
 
 (function (angular, TLM) {
   "use strict";
-  var defaults = {
-    duration: 0.5
-  };
 
   angular.module('fx.transitions.create', ['fx.transitions.assist', 'fx.animations.assist'])
 
@@ -528,13 +525,16 @@
 
     return function (effect) {
 
-      angular.extend(defaults, effect);
-
       if (effect.from) {
         this.enter = function (el, done) {
+          var customs;
           cssMixin(el);
 
-          effect.from.ease = Assist.parseClassList(el, true).easeIn;
+          customs = Assist.parseClassList(el, true);
+
+          effect.from.ease = customs.ease.easeInOut;
+          effect.duration = customs.speed;
+
           TransAssist.addTimer(el, effect.duration, done);
 
           slide = new TLM();
@@ -549,11 +549,15 @@
 
       } else if (!effect.from && effect.to) {
         this.leave = function (el, done) {
-
+          var customs;
           cssMixin(el);
 
+          customs = Assist.parseClassList(el, true);
+
+          effect.to.ease = customs.ease.easeInOut;
+          effect.duration = customs.speed;
           TransAssist.addTimer(el, effect.duration, done);
-          effect.to.ease = Assist.parseClassList(el, true).easeIn;
+
 
           slide = new TLM();
 
@@ -582,11 +586,76 @@
         };
       }
     };
+  }])
+  .factory('RotationTransition', ['TransAssist', 'Assist','$compile', function (TransAssist, Assist, $compile) {
+    var rotate;
+    return function (effect) {
+      this[effect.when] = function (el, done) {
+        var customs, wrapper;
+
+        wrapper = $compile('<div></div>')(el.scope());
+
+        cssMixin(el);
+
+        css3D(wrapper, el);
+
+        angular.element(wrapper).append(el[0].outerHTML);
+        console.log(wrapper, el);
+        customs = Assist.parseClassList(el, true);
+
+        effect.from.ease = customs.ease.easeOut;
+        effect.duration = customs.duration;
+        TransAssist.addTimer(el, effect.duration, done);
+        rotate = new TLM();
+
+        rotate.from(el, 1, effect.from)
+              .to(el, 1, effect.to);
+
+        return function (cancel) {
+          if(cancel) {
+            TransAssist.removeTimer(el);
+          }
+        };
+      };
+    };
   }]);
 
-  function cssMixin (el) {
+  function cssMixin (el, z) {
     el.css('position', 'absolute');
-    // leave ? el.css('z-index', '9999') : void 0;
+    z ? z === 'leave' ?
+      el.css('z-index', '9999') : el.css('z-index', '8888') : function(){};
+  }
+
+  function css3D (parent, view) {
+    var preservve = {
+      'position': 'relative',
+      width: '100%',
+      height: '100%',
+      '-webkit-perspective': '500px',
+      '-moz-perspective': '500px',
+      '-o-perspective': '500px',
+      'perspective': '500px',
+    };
+
+    var trans = {
+      overflow: 'hidden',
+      '-webkit-backface-visibility': 'hidden',
+      '-moz-backface-visibility': 'hidden',
+      'backface-visibility': 'hidden',
+      '-webkit-transform': 'translate3d(0, 0, 0)',
+      '-moz-transform': 'translate3d(0, 0, 0)',
+      'transform': 'translate3d(0, 0, 0),',
+     ' -webkit-transform-style': 'preserve-3d',
+      '-moz-transform-style': 'preserve-3d',
+      'transform-style': 'preserve-3d'
+    };
+    parent.css(preservve);
+    view.css(trans);
+  }
+
+  function calcTime  (duration, perc) {
+    console.log(duration);
+    return (duration * (perc/100));
   }
 
 }(angular, TimelineMax));
@@ -956,13 +1025,67 @@
 (function (angular) {
   "use strict";
 
+  angular.module('fx.transitions.rotations', ['fx.transitions.create'])
+
+  .animation('.rotate-out-right', ['RotationTransition', function (RotationTransition) {
+    var effect = {
+      from: {transform: 'rotateY(15deg)', opacity: '.8'},
+      to: {transform: 'scale(0.8) translateZ(-200px)', opacity: '0'},
+      when: 'leave',
+      duration: 0.5
+    };
+
+    return new RotationTransition(effect);
+  }]);
+}(angular));
+(function (angular) {
+  "use strict";
+
+  angular.module('fx.transitions.scales', ['fx.transitions.create'])
+
+  .animation('.shrink-in', ['SlideTransition', function (SlideTransition) {
+    var effect = {
+      from: {opacity: '0', transform: 'translateZ(0) scale(1.2)'},
+      duration: 0.5
+    };
+
+    return new SlideTransition(effect);
+  }])
+  .animation('.shrink-out', ['SlideTransition', function (SlideTransition) {
+    var effect = {
+      to: {opacity: '0', transform: 'translateZ(0) scale(.8)'},
+      duration: 0.5
+    };
+
+    return new SlideTransition(effect);
+  }])
+  .animation('.grow-in', ['SlideTransition', function (SlideTransition) {
+    var effect = {
+      from: {opacity: '0', transform: 'translateZ(0) scale(.8)'},
+      duration: 0.5
+    };
+
+    return new SlideTransition(effect);
+  }])
+  .animation('.grow-out', ['SlideTransition', function (SlideTransition) {
+    var effect = {
+      to: {opacity: '0', transform: 'translateZ(0) scale(1.2)'},
+      duration: 0.5
+    };
+
+    return new SlideTransition(effect);
+  }]);
+}(angular));
+(function (angular) {
+  "use strict";
+
   angular.module('fx.transitions.slides', ['fx.transitions.create'])
 
   .animation('.slide-in-left', ['SlideTransition', function (SlideTransition) {
 
     var effect = {
       from: { transform: 'translateZ(0) translateX(100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -971,7 +1094,7 @@
 
     var effect = {
       to: { transform: 'translateZ(0) translateX(-100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -980,7 +1103,7 @@
 
     var effect = {
       from: { transform: 'translateZ(0) translateX(-100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -990,7 +1113,7 @@
 
     var effect = {
       to: { transform: 'translateZ(0) translateX(100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -999,7 +1122,7 @@
 
     var effect = {
       from: { transform: 'translateZ(0) translateY(-100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -1008,7 +1131,7 @@
 
     var effect = {
       to: { transform: 'translateZ(0) translateY(100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -1017,7 +1140,7 @@
 
     var effect = {
       from: { transform: 'translateZ(0) translateY(100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -1026,7 +1149,7 @@
 
     var effect = {
       to: { transform: 'translateZ(0) translateY(-100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -1038,7 +1161,7 @@
 
     var effect = {
       from: { opacity: '0.3', transform: 'translateZ(0) translateX(100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -1047,7 +1170,7 @@
 
     var effect = {
       to: { opacity: '0.3', transform: 'translateZ(0) translateX(-100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -1056,7 +1179,7 @@
 
     var effect = {
       from: { opacity: '0.3', transform: 'translateZ(0) translateX(-100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -1066,7 +1189,7 @@
 
     var effect = {
       to: { opacity: '0.3', transform: 'translateZ(0) translateX(100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -1075,7 +1198,7 @@
 
     var effect = {
       from: { opacity: '0.3', transform: 'translateZ(0) translateY(-100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -1084,7 +1207,7 @@
 
     var effect = {
       to: { opacity: '0.3', transform: 'translateZ(0) translateY(100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -1093,7 +1216,7 @@
 
     var effect = {
       from: { opacity: '0.3', transform: 'translateZ(0) translateY(100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -1102,7 +1225,7 @@
 
     var effect = {
       to: { opacity: '0.3', transform: 'translateZ(0) translateY(-100%)'},
-      duration: 0.5
+      duration: 2
     };
 
     return new SlideTransition(effect);
@@ -1238,6 +1361,8 @@
   angular.module('fx.transitions',
     [
       'fx.transitions.slides',
+      'fx.transitions.scales',
+      'fx.transitions.rotations',
       'fx.transitions.specials'
     ]
   );
@@ -1287,11 +1412,12 @@
             }
 
             function update() {
-              var locals = $route.current && $route.current.locals,
-                  template = locals && locals.$template,
-                  enter = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.enter,
-                  leave = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.leave,
-                  ease = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.ease;
+              var locals    = $route.current && $route.current.locals,
+                  template  = locals && locals.$template,
+                  enter     = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.enter,
+                  leave     = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.leave,
+                  ease      = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.ease,
+                  speed     = $route.current && $route.current.$$route.animation && $route.current.$$route.animation.speed;
 
               if (angular.isDefined(template)) {
                 var newScope = scope.$new();
@@ -1302,6 +1428,8 @@
                   clone.addClass(enter);
                   clone.addClass(leave);
                   clone.addClass('fx-easing-'+ease);
+                  clone.addClass('fx-speed-'+speed);
+
                   $animate.enter(clone, null, currentElement || $element, function onNgViewEnter () {
                     if (angular.isDefined(autoScrollExp) &&
                       (!autoScrollExp || scope.$eval(autoScrollExp))) {
@@ -1416,7 +1544,8 @@
                     previousLocals  = name && $state.$current && $state.$current.locals[name],
                     enter           = $state.$current && $state.$current.animation && $state.$current.animation.enter,
                     leave           = $state.$current && $state.$current.animation && $state.$current.animation.leave,
-                    ease            = $state.$current && $state.$current.animation && $state.$current.animation.ease;
+                    ease            = $state.$current && $state.$current.animation && $state.$current.animation.ease,
+                    speed           = $state.$current && $state.$current.animation && $state.$current.animation.speed;
 
                 if (!firstTime && previousLocals === latestLocals) {return;} // nothing to do
 
@@ -1424,6 +1553,8 @@
                   clone.addClass(enter);
                   clone.addClass(leave);
                   clone.addClass('fx-easing-'+ease);
+                  clone.addClass('fx-speed-'+speed);
+
                   renderer.enter(clone, $element, function onUiViewEnter() {
                     if (angular.isDefined(autoScrollExp) && !autoScrollExp || scope.$eval(autoScrollExp)) {
                       $uiViewScroll(clone);
