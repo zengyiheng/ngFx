@@ -34,7 +34,7 @@
     "specs"
   ],
   "dependencies": {
-    "angular": "*",
+    "angular": "1.8.2",
     "angular-ui-router": "~0.2.10"
   },
   "devDependencies": {
